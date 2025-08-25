@@ -121,40 +121,27 @@
   }
 }
 
-/* AI-Themed Custom Properties */
-:root {
-  /* AI Brand Colors */
-  --ai-primary: oklch(0.646 0.222 264.376); /* Vibrant blue-purple */
-  --ai-secondary: oklch(0.6 0.118 184.704); /* Cyan */
-  --ai-accent: oklch(0.828 0.189 84.429); /* Electric green */
-  --ai-gradient-start: oklch(0.646 0.222 264.376);
-  --ai-gradient-end: oklch(0.6 0.118 184.704);
-  
-  /* Code Theme Colors */
-  --code-bg: oklch(0.1 0 0);
-  --code-text: oklch(0.9 0 0);
-  --code-keyword: oklch(0.7 0.2 300);
-  --code-string: oklch(0.7 0.2 120);
-  --code-function: oklch(0.8 0.15 60);
-  --code-comment: oklch(0.5 0 0);
-  
-  /* Animation Properties */
-  --cursor-blink: 1s;
-  --typing-speed: 0.05s;
-  --glow-intensity: 0.8;
+/* QUANTUM INTERFACE - HOLY SHIT MOMENTS */
+
+@keyframes quantumGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(147, 51, 234, 0.4); }
+  50% { box-shadow: 0 0 40px rgba(147, 51, 234, 0.8); }
 }
 
-.dark {
-  --ai-primary: oklch(0.7 0.25 264.376);
-  --ai-secondary: oklch(0.65 0.15 184.704);
-  --ai-accent: oklch(0.85 0.2 84.429);
-  --code-bg: oklch(0.05 0 0);
+@keyframes impossibleFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
 }
 
-/* Custom Animations */
-@keyframes typewriter {
-  from { width: 0; }
-  to { width: 100%; }
+@keyframes neuralPulse {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes particleTrail {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0); opacity: 0; }
 }
 
 @keyframes blink {
@@ -162,85 +149,99 @@
   51%, 100% { opacity: 0; }
 }
 
-@keyframes glow {
-  0%, 100% { 
-    box-shadow: 0 0 5px rgb(from var(--ai-primary) r g b / 0.5),
-                0 0 20px rgb(from var(--ai-primary) r g b / 0.3),
-                0 0 40px rgb(from var(--ai-primary) r g b / 0.1);
-  }
-  50% { 
-    box-shadow: 0 0 10px rgb(from var(--ai-primary) r g b / 0.8),
-                0 0 30px rgb(from var(--ai-primary) r g b / 0.5),
-                0 0 60px rgb(from var(--ai-primary) r g b / 0.2);
-  }
+.quantum-glow {
+  animation: quantumGlow 3s ease-in-out infinite;
 }
 
-@keyframes pulse-border {
-  0%, 100% { border-color: rgb(from var(--ai-primary) r g b / 0.3); }
-  50% { border-color: rgb(from var(--ai-primary) r g b / 0.8); }
+.impossible-float {
+  animation: impossibleFloat 6s ease-in-out infinite;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-}
-
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Utility Classes */
-.ai-gradient {
-  background: linear-gradient(
-    135deg, 
-    var(--ai-gradient-start) 0%, 
-    var(--ai-gradient-end) 100%
-  );
-}
-
-.ai-gradient-animated {
-  background: linear-gradient(
-    -45deg,
-    var(--ai-gradient-start),
-    var(--ai-secondary),
-    var(--ai-accent),
-    var(--ai-gradient-end)
-  );
+.neural-pulse {
+  background: linear-gradient(-45deg, #9333ea, #3b82f6, #06b6d4, #10b981);
   background-size: 400% 400%;
-  animation: gradient-shift 8s ease infinite;
+  animation: neuralPulse 4s ease infinite;
 }
 
-.typing-cursor::after {
-  content: '|';
-  animation: blink var(--cursor-blink) infinite;
-  color: var(--ai-primary);
+.morphing-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  backdrop-filter: blur(20px);
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.1), rgba(59, 130, 246, 0.05));
+  border: 1px solid rgba(147, 51, 234, 0.2);
 }
 
-.glow-box {
-  animation: glow 2s ease-in-out infinite;
+.liquid-background {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(147, 51, 234, 0.1) 0%,
+    rgba(59, 130, 246, 0.05) 25%,
+    transparent 50%
+  );
+  transition: all 0.3s ease;
 }
 
-.pulse-border {
-  animation: pulse-border 2s ease-in-out infinite;
+.impossible-text {
+  background: linear-gradient(45deg, #9333ea, #3b82f6, #06b6d4);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: neuralPulse 4s ease infinite;
 }
 
-.float {
-  animation: float 3s ease-in-out infinite;
+.holographic-text {
+  background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* Code Styling */
-.code-block {
-  background: var(--code-bg);
-  color: var(--code-text);
-  font-family: 'Fira Code', 'Consolas', monospace;
-  border-radius: 8px;
-  padding: 1rem;
-  overflow-x: auto;
+.quantum-terminal {
+  background: rgba(16, 16, 20, 0.95);
+  border: 1px solid rgba(147, 51, 234, 0.3);
+  box-shadow: 0 0 50px rgba(147, 51, 234, 0.2);
 }
 
-.code-keyword { color: var(--code-keyword); }
-.code-string { color: var(--code-string); }
-.code-function { color: var(--code-function); }
-.code-comment { color: var(--code-comment); }
+.dimensional-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.dimensional-card:hover {
+  transform: translateZ(10px) rotateY(5deg);
+}
+
+.quantum-glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.cursor-magnetic {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.cursor-magnetic:hover {
+  transform: scale(1.02);
+}
+
+.particle-trail {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, rgba(147, 51, 234, 0.8) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: particleTrail 1s ease-out forwards;
+}
+
+.typing-cursor {
+  animation: blink 1s infinite;
+}
