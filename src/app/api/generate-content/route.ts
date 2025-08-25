@@ -32,7 +32,15 @@ Generate an exciting, professional summary of how AI would transform their lesso
 2. Engaging features pupils would experience
 3. How it solves teacher pain points (instant deployment, pupil safety, no coding required)
 
-Use confident, inspiring language with UK spelling and terminology (pupils not students, Year groups not grades, analyse not analyze, visualisation not visualization, colour not color). Keep under 120 words. Make it feel magical but achievable.`
+Use confident, inspiring language with UK spelling and terminology (pupils not students, Year groups not grades, analyse not analyze, visualisation not visualization, colour not color). 
+
+**Format your response using markdown** for visual appeal:
+- Use **bold** for key concepts and features
+- Use *italics* for emphasis on benefits
+- Use bullet points for feature lists
+- Keep under 120 words but make every word count
+
+Make it feel magical but achievable.`
           },
           {
             role: 'user',
