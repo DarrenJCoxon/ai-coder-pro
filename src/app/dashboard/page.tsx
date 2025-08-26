@@ -4,10 +4,16 @@ import { redirect } from 'next/navigation'
 import { InteractiveCTA } from '@/components/InteractiveCTA'
 
 export default async function DashboardPage() {
-  const user = await currentUser()
+  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  let user = null;
   
-  if (!user) {
-    redirect('/sign-in')
+  // Only check for authenticated user if Clerk is properly configured
+  if (publishableKey) {
+    user = await currentUser()
+    
+    if (!user) {
+      redirect('/auth')
+    }
   }
 
   return (
@@ -22,10 +28,14 @@ export default async function DashboardPage() {
               </h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-400">
-                Welcome, {user.firstName || user.emailAddresses[0].emailAddress}
-              </span>
-              <UserButton afterSignOutUrl="/" />
+              {publishableKey && (
+                <>
+                  <span className="text-sm text-gray-400">
+                    Welcome, {user?.firstName || user?.emailAddresses?.[0]?.emailAddress || 'User'}
+                  </span>
+                  <UserButton afterSignOutUrl="/" />
+                </>
+              )}
             </div>
           </div>
         </div>

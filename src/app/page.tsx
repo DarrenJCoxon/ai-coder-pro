@@ -8,11 +8,15 @@ import { currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 
 export default async function Home() {
-  const user = await currentUser();
+  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
   
-  // If user is authenticated, redirect to dashboard
-  if (user) {
-    redirect('/dashboard');
+  // Only check for authenticated user if Clerk is properly configured
+  if (publishableKey) {
+    const user = await currentUser();
+    // If user is authenticated, redirect to dashboard
+    if (user) {
+      redirect('/dashboard');
+    }
   }
 
   return (
