@@ -1,6 +1,13 @@
 import { SignUp } from '@clerk/nextjs'
+import { redirect } from 'next/navigation'
 
 export default function SignUpPage() {
+  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  
+  // If Clerk is not configured, redirect to homepage
+  if (!publishableKey) {
+    redirect('/');
+  }
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-md">
