@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { AIModelStatusCompact } from '@/components/AIModelStatus';
 
 const ctaPrompts = [
   "Create an interactive photosynthesis lab for Year 7",
@@ -23,57 +24,13 @@ const ctaPrompts = [
 ];
 
 type GeneratedResource = {
-  title: string;
-  type: string;
-  description: string;
-  features: string[];
-  deployTime: string;
-  studentAccess: string;
-  preview: string;
-  engagement: string;
-  outcome: string;
-};
-
-const mockGeneratedResources: Record<string, GeneratedResource> = {
-  "Create an interactive photosynthesis lab for Year 7": {
-    title: "Living Lab: Photosynthesis Explorer",
-    type: "Interactive Virtual Laboratory",
-    description: "Pupils manipulate light wavelengths, CO₂ levels, and water availability to discover how plants create energy. Real-time molecular animations show glucose formation.",
-    features: [
-      "3D chloroplast visualisation with zoom controls",
-      "Light spectrum slider affecting reaction rates", 
-      "Molecule tracker showing O₂ and glucose production",
-      "Built-in assessment with adaptive questioning",
-      "Progress dashboard for teacher insights"
-    ],
-    deployTime: "Ready in 90 seconds",
-    studentAccess: "Instant QR code sharing",
-    preview: "🌱 Pupils drag different coloured lights onto leaves and watch chlorophyll molecules dance as glucose forms in real-time...",
-    engagement: "95% pupil completion rate",
-    outcome: "Interactive, safe, and yours to customise"
-  },
-  "Build a World War 2 timeline with primary sources": {
-    title: "Voices of History: WWII Timeline",
-    type: "Interactive Historical Journey",
-    description: "Immersive timeline with primary source documents, personal stories, and interactive decision points that help pupils understand the human impact of war.",
-    features: [
-      "Clickable timeline with major events and personal stories",
-      "Primary source document viewer with guided analysis",
-      "Interactive map showing global impact",
-      "Character perspective switching (soldier, civilian, leader)",
-      "Critical thinking prompts at decision points"
-    ],
-    deployTime: "Ready in 2 minutes",
-    studentAccess: "Simple link sharing",
-    preview: "📜 Pupils click on D-Day and hear a soldier's letter home, then analyse propaganda posters from three different countries...",
-    engagement: "Pupils spend 40% longer exploring",
-    outcome: "Deep learning through authentic sources"
-  }
+  content: string;
 };
 
 export function InteractiveCTA() {
   const [userInput, setUserInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isLoadingIdea, setIsLoadingIdea] = useState(false);
   const [generatedResource, setGeneratedResource] = useState<GeneratedResource | null>(null);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [showDemo, setShowDemo] = useState(false);
@@ -89,7 +46,7 @@ export function InteractiveCTA() {
 
   const generateAISummary = async (input: string): Promise<string> => {
     try {
-      const response = await fetch('/api/generate-content', {
+      const response = await fetch('/api/ai-generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -102,11 +59,10 @@ export function InteractiveCTA() {
       }
 
       const data = await response.json();
-      return data.content || 'Unable to generate content at this time.';
+      return data.content || 'AI will transform your lesson idea into an interactive educational experience.';
     } catch (error) {
       console.error('Error generating AI summary:', error);
-      // Fallback to a generic message if API fails
-      return 'AI will transform your lesson idea into an interactive educational experience with multimedia content, student engagement features, and easy deployment. Perfect for busy teachers who want powerful resources without the complexity.';
+      return 'AI will transform your lesson idea into an interactive educational experience with multimedia content, student engagement features, and easy deployment.';
     }
   };
 
@@ -116,31 +72,39 @@ export function InteractiveCTA() {
 
     const inputToUse = userInput.trim() || ctaPrompts[placeholderIndex];
     
-    // First show AI summary
+    // First show lesson idea loading state
     if (!showSummary) {
-      setIsGenerating(true);
-      const summary = await generateAISummary(inputToUse);
-      setAiSummary(summary);
-      setIsGenerating(false);
-      setShowSummary(true);
+      setIsLoadingIdea(true);
+      
+      // Show loading for a moment, then generate summary
+      setTimeout(async () => {
+        setIsGenerating(true);
+        setIsLoadingIdea(false);
+        setShowSummary(true);
+        
+        const summary = await generateAISummary(inputToUse);
+        setAiSummary(summary);
+        setIsGenerating(false);
+      }, 800); // Brief loading state to build anticipation
+      
       return;
     }
     
-    // Then proceed with full generation
+    // Then proceed with full generation using the same AI content
     setIsGenerating(true);
     setShowDemo(true);
     
-    // Simulate AI processing with realistic timing
-    await new Promise(resolve => setTimeout(resolve, 2500));
-    
-    const resource = mockGeneratedResources[inputToUse] || mockGeneratedResources[ctaPrompts[0]] || Object.values(mockGeneratedResources)[0];
-    setGeneratedResource(resource);
+    // Generate the full AI resource content
+    const fullContent = await generateAISummary(inputToUse);
+    setGeneratedResource({ content: fullContent });
     setIsGenerating(false);
   };
 
   const tryExample = (prompt: string) => {
     setUserInput(prompt);
     setShowDemo(false);
+    setShowSummary(false);
+    setIsLoadingIdea(false);
     setTimeout(() => handleGenerate(), 100);
   };
 
@@ -161,6 +125,8 @@ export function InteractiveCTA() {
           <div className="flex items-center justify-center gap-2 mb-6">
             <Wand2 className="w-8 h-8 text-amber-400" />
             <span className="text-amber-400 font-medium">Live AI Demo</span>
+            <span className="text-gray-500">•</span>
+            <AIModelStatusCompact className="" />
           </div>
           
           <h2 className="text-4xl md:text-6xl font-light text-white mb-6 leading-tight">
@@ -174,7 +140,62 @@ export function InteractiveCTA() {
           </p>
         </motion.div>
 
-        {!showDemo && !showSummary ? (
+        {isLoadingIdea ? (
+          /* Lesson Idea Loading State */
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-4xl mx-auto"
+          >
+            {/* User Input Display */}
+            <div className="bg-gray-900/50 border border-gray-700 rounded-2xl p-6 mb-8">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-amber-400 rounded-full flex items-center justify-center text-black font-medium">
+                  You
+                </div>
+                <span className="text-gray-400">Your lesson idea</span>
+              </div>
+              <p className="text-white text-lg">{userInput.trim() || ctaPrompts[placeholderIndex]}</p>
+            </div>
+            
+            {/* Loading Animation */}
+            <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8 text-center">
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.05, 1],
+                  opacity: [0.8, 1, 0.8]
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity, 
+                  ease: "easeInOut" 
+                }}
+                className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center"
+              >
+                <Wand2 className="w-8 h-8 text-black" />
+              </motion.div>
+              
+              <h3 className="text-2xl font-light text-white mb-3">
+                Crafting your lesson idea...
+              </h3>
+              
+              <motion.div
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ 
+                  duration: 1.5, 
+                  repeat: Infinity, 
+                  ease: "easeInOut" 
+                }}
+                className="space-y-2"
+              >
+                <p className="text-amber-400 font-medium">🧠 Analyzing educational objectives</p>
+                <p className="text-blue-400 font-medium">⚡ Designing interactive elements</p>
+                <p className="text-green-400 font-medium">🎯 Preparing student engagement features</p>
+              </motion.div>
+            </div>
+          </motion.div>
+        ) : !showDemo && !showSummary ? (
           /* Initial Input State */
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -359,6 +380,7 @@ export function InteractiveCTA() {
                   setShowSummary(false);
                   setAiSummary('');
                   setUserInput('');
+                  setIsLoadingIdea(false);
                 }}
                 className="text-amber-400 hover:text-amber-300 text-sm mt-4 underline"
               >
@@ -415,65 +437,65 @@ export function InteractiveCTA() {
                   transition={{ duration: 0.8 }}
                   className="space-y-8"
                 >
-                  {/* Generated Resource Preview */}
+                  {/* User Input Display */}
+                  <div className="bg-gray-900/50 border border-gray-700 rounded-2xl p-6 mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 bg-amber-400 rounded-full flex items-center justify-center text-black font-medium">
+                        You
+                      </div>
+                      <span className="text-gray-400">Your lesson idea</span>
+                    </div>
+                    <p className="text-white text-lg">{userInput}</p>
+                  </div>
+
+                  {/* AI Generated Resource */}
                   <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8">
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center">
-                        <BookOpen className="w-6 h-6 text-white" />
+                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
+                        <Wand2 className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-2xl font-medium text-white">{generatedResource.title}</h3>
-                        <p className="text-amber-400 font-medium">{generatedResource.type}</p>
+                        <p className="text-amber-400 text-sm font-medium">AI Resource Generator</p>
+                        <h3 className="text-xl font-light text-white">Your Educational Resource</h3>
                       </div>
                     </div>
-
-                    <p className="text-gray-300 text-lg leading-relaxed mb-6">
-                      {generatedResource.description}
-                    </p>
-
-                    {/* What Students Experience */}
-                    <div className="bg-amber-400/5 border border-amber-400/20 rounded-xl p-6 mb-6">
-                      <h4 className="text-white font-medium mb-3">What pupils experience:</h4>
-                      <p className="text-amber-200 italic leading-relaxed">
-                        {generatedResource.preview}
-                      </p>
+                    
+                    <div className="text-gray-300 text-lg leading-relaxed prose prose-invert max-w-none">
+                      <ReactMarkdown 
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          h1: ({children}) => <h1 className="text-2xl font-bold text-white mb-4">{children}</h1>,
+                          h2: ({children}) => <h2 className="text-xl font-bold text-white mb-3">{children}</h2>,
+                          h3: ({children}) => <h3 className="text-lg font-bold text-white mb-2">{children}</h3>,
+                          p: ({children}) => <p className="text-gray-300 mb-3 leading-relaxed">{children}</p>,
+                          strong: ({children}) => <strong className="text-white font-semibold">{children}</strong>,
+                          em: ({children}) => <em className="text-amber-400">{children}</em>,
+                          ul: ({children}) => <ul className="text-gray-300 mb-3 space-y-1 ml-4">{children}</ul>,
+                          ol: ({children}) => <ol className="text-gray-300 mb-3 space-y-1 ml-4">{children}</ol>,
+                          li: ({children}) => <li className="text-gray-300">{children}</li>,
+                          code: ({children}) => <code className="bg-gray-800 text-amber-400 px-2 py-1 rounded text-sm">{children}</code>,
+                        }}
+                      >
+                        {generatedResource.content}
+                      </ReactMarkdown>
                     </div>
 
-                    {/* Key Stats */}
-                    <div className="grid md:grid-cols-3 gap-6 mb-6">
-                      <div className="text-center p-4 bg-gray-800/50 rounded-xl">
-                        <Clock className="w-8 h-8 text-green-400 mx-auto mb-2" />
-                        <p className="text-green-400 font-medium">{generatedResource.deployTime}</p>
-                        <p className="text-gray-400 text-sm">Deploy time</p>
+                    {/* Quick Stats */}
+                    <div className="grid grid-cols-3 gap-4 mt-8">
+                      <div className="bg-gray-800/50 rounded-xl p-4 text-center">
+                        <Clock className="w-6 h-6 text-green-400 mx-auto mb-2" />
+                        <p className="text-green-400 font-medium text-sm">Ready in 90s</p>
+                        <p className="text-gray-400 text-xs">Deploy time</p>
                       </div>
-                      <div className="text-center p-4 bg-gray-800/50 rounded-xl">
-                        <Users className="w-8 h-8 text-blue-400 mx-auto mb-2" />
-                        <p className="text-blue-400 font-medium">{generatedResource.studentAccess}</p>
-                        <p className="text-gray-400 text-sm">Pupil access</p>
+                      <div className="bg-gray-800/50 rounded-xl p-4 text-center">
+                        <Shield className="w-6 h-6 text-blue-400 mx-auto mb-2" />
+                        <p className="text-blue-400 font-medium text-sm">100% Secure</p>
+                        <p className="text-gray-400 text-xs">Pupil data</p>
                       </div>
-                      <div className="text-center p-4 bg-gray-800/50 rounded-xl">
-                        <Sparkles className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-                        <p className="text-purple-400 font-medium">{generatedResource.engagement}</p>
-                        <p className="text-gray-400 text-sm">Engagement boost</p>
-                      </div>
-                    </div>
-
-                    {/* Features List */}
-                    <div className="space-y-3 mb-8">
-                      <h4 className="text-white font-medium">Included features:</h4>
-                      <div className="grid md:grid-cols-2 gap-3">
-                        {generatedResource.features.map((feature, index) => (
-                          <motion.div
-                            key={index}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            className="flex items-center gap-3 text-gray-300"
-                          >
-                            <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
-                            <span className="text-sm">{feature}</span>
-                          </motion.div>
-                        ))}
+                      <div className="bg-gray-800/50 rounded-xl p-4 text-center">
+                        <Users className="w-6 h-6 text-purple-400 mx-auto mb-2" />
+                        <p className="text-purple-400 font-medium text-sm">Any Class Size</p>
+                        <p className="text-gray-400 text-xs">Scales perfectly</p>
                       </div>
                     </div>
                   </div>
@@ -490,7 +512,7 @@ export function InteractiveCTA() {
                     </motion.button>
                     
                     <p className="text-gray-400 text-sm mt-4">
-                      Free account • No credit card required • {generatedResource.outcome}
+                      Free account • No credit card required • Interactive, safe, and yours to customise
                     </p>
                     
                     <button
@@ -500,6 +522,7 @@ export function InteractiveCTA() {
                         setGeneratedResource(null);
                         setUserInput('');
                         setAiSummary('');
+                        setIsLoadingIdea(false);
                       }}
                       className="text-amber-400 hover:text-amber-300 text-sm mt-4 underline"
                     >

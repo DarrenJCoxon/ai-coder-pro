@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, BookOpen, Users, Clock, MousePointer, Shield } from 'lucide-react';
+import { Sparkles, BookOpen, Users, Clock, MousePointer, Shield, Wand2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const demoPrompts = [
   "Create an interactive photosynthesis lab for Year 7",
@@ -12,37 +14,7 @@ const demoPrompts = [
 ];
 
 type DemoResource = {
-  title: string;
-  type: string;
-  description: string;
-  preview: string;
-};
-
-const mockResources: Record<string, DemoResource> = {
-  "Create an interactive photosynthesis lab for Year 7": {
-    title: "Living Lab: Photosynthesis Explorer",
-    type: "Interactive Virtual Laboratory",
-    description: "Pupils manipulate light wavelengths, CO₂ levels, and water availability to discover how plants create energy.",
-    preview: "🌱 Pupils drag different coloured lights onto leaves and watch chlorophyll molecules dance as glucose forms in real-time..."
-  },
-  "Build a World War 2 timeline with primary sources": {
-    title: "Voices of History: WWII Timeline", 
-    type: "Interactive Historical Journey",
-    description: "Immersive timeline with primary source documents, personal stories, and interactive decision points.",
-    preview: "📜 Pupils click on D-Day and hear a soldier's letter home, then analyse propaganda posters from three different countries..."
-  },
-  "Design fraction practice games for primary school": {
-    title: "Fraction Adventure Island",
-    type: "Gamified Learning Experience", 
-    description: "Pupils navigate through fraction challenges using visual pizza slices, measuring cups, and treasure maps.",
-    preview: "🍕 Pupils split pizzas for hungry pirates and discover that 2/4 equals 1/2 when the treasure chest opens..."
-  },
-  "Make a solar system exploration for Year 5 pupils": {
-    title: "Cosmic Journey: Solar System Explorer",
-    type: "3D Interactive Space Mission",
-    description: "Pupils pilot a spacecraft through the solar system, landing on planets to collect data and complete missions.",
-    preview: "🚀 Pupils land on Mars and use rovers to measure temperature whilst learning about planetary atmospheres..."
-  }
+  content: string;
 };
 
 export function InteractiveDemo() {
@@ -51,6 +23,28 @@ export function InteractiveDemo() {
   const [currentResource, setCurrentResource] = useState<DemoResource | null>(null);
   const [animationPhase, setAnimationPhase] = useState('idle'); // 'idle', 'moving', 'clicking', 'generating', 'showing'
   const currentIndexRef = useRef(0);
+
+  const generateAIContent = async (prompt: string): Promise<string> => {
+    try {
+      const response = await fetch('/api/generate-content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate content');
+      }
+
+      const data = await response.json();
+      return data.content || 'AI will transform your lesson idea into an interactive educational experience with multimedia content, student engagement features, and easy deployment.';
+    } catch (error) {
+      console.error('Error generating AI content:', error);
+      return 'AI will transform your lesson idea into an interactive educational experience with multimedia content, student engagement features, and easy deployment.';
+    }
+  };
 
   useEffect(() => {
     const startDemo = () => {
@@ -70,10 +64,10 @@ export function InteractiveDemo() {
         setTimeout(() => {
           setAnimationPhase('generating');
           
-          // Generate resource using the captured index
-          setTimeout(() => {
-            const resource = mockResources[demoPrompts[activeIndex]] || Object.values(mockResources)[0];
-            setCurrentResource(resource);
+          // Generate AI resource using the captured index
+          const promptToUse = demoPrompts[activeIndex];
+          generateAIContent(promptToUse).then(content => {
+            setCurrentResource({ content });
             setAnimationPhase('showing');
             
             // Show for a bit, then cycle to next
@@ -84,7 +78,7 @@ export function InteractiveDemo() {
               setIsAnimating(false);
               setAnimationPhase('idle');
             }, 4000);
-          }, 2000);
+          });
         }, 500);
       }, 1000);
     };
@@ -247,24 +241,35 @@ export function InteractiveDemo() {
                     {/* Resource Header */}
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center">
-                          <BookOpen className="w-6 h-6 text-white" />
+                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
+                          <Wand2 className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                          <p className="text-amber-400 text-sm font-medium">{currentResource.type}</p>
-                          <h3 className="text-2xl font-light text-white">{currentResource.title}</h3>
+                          <p className="text-amber-400 text-sm font-medium">AI Generated Resource</p>
+                          <h3 className="text-2xl font-light text-white">Educational Experience</h3>
                         </div>
                       </div>
-                      <p className="text-gray-300 leading-relaxed">{currentResource.description}</p>
                     </div>
 
-                    {/* Student Experience Preview */}
-                    <div className="bg-amber-400/5 border border-amber-400/20 rounded-xl p-6">
-                      <h4 className="font-medium text-white mb-3 flex items-center gap-2">
-                        <Users className="w-4 h-4" />
-                        What pupils experience:
-                      </h4>
-                      <p className="text-amber-200 italic leading-relaxed">{currentResource.preview}</p>
+                    {/* AI Generated Content */}
+                    <div className="text-gray-300 text-lg leading-relaxed prose prose-invert max-w-none">
+                      <ReactMarkdown 
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          h1: ({children}) => <h1 className="text-xl font-bold text-white mb-3">{children}</h1>,
+                          h2: ({children}) => <h2 className="text-lg font-bold text-white mb-2">{children}</h2>,
+                          h3: ({children}) => <h3 className="text-base font-bold text-white mb-2">{children}</h3>,
+                          p: ({children}) => <p className="text-gray-300 mb-2 leading-relaxed text-sm">{children}</p>,
+                          strong: ({children}) => <strong className="text-white font-semibold">{children}</strong>,
+                          em: ({children}) => <em className="text-amber-400">{children}</em>,
+                          ul: ({children}) => <ul className="text-gray-300 mb-2 space-y-1 ml-4 text-sm">{children}</ul>,
+                          ol: ({children}) => <ol className="text-gray-300 mb-2 space-y-1 ml-4 text-sm">{children}</ol>,
+                          li: ({children}) => <li className="text-gray-300 text-sm">{children}</li>,
+                          code: ({children}) => <code className="bg-gray-800 text-amber-400 px-2 py-1 rounded text-xs">{children}</code>,
+                        }}
+                      >
+                        {currentResource.content}
+                      </ReactMarkdown>
                     </div>
 
                     {/* Quick Stats */}

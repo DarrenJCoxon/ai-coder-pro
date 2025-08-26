@@ -2,6 +2,7 @@ import { UserButton } from '@clerk/nextjs'
 import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { InteractiveCTA } from '@/components/InteractiveCTA'
+import { AIModelStatusDetailed } from '@/components/AIModelStatus'
 
 export default async function DashboardPage() {
   const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
@@ -47,9 +48,15 @@ export default async function DashboardPage() {
           <h2 className="text-3xl font-bold text-white mb-2">
             Create Your Educational Resource
           </h2>
-          <p className="text-gray-400 text-lg">
+          <p className="text-gray-400 text-lg mb-6">
             Transform your lesson ideas into interactive digital experiences with AI
           </p>
+          
+          {/* AI Model Status */}
+          <div className="bg-gray-900/50 border border-gray-700 rounded-xl p-4 mb-6">
+            <h3 className="text-sm font-medium text-gray-300 mb-3">Current AI Configuration</h3>
+            <AIModelStatusDetailed />
+          </div>
         </div>
 
         {/* Interactive CTA Component */}
