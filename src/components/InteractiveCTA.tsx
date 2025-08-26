@@ -12,6 +12,8 @@ import {
   CheckCircle,
   Wand2
 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const ctaPrompts = [
   "Create an interactive photosynthesis lab for Year 7",
@@ -285,7 +287,25 @@ export function InteractiveCTA() {
                     <span className="font-medium">AI understands your concept!</span>
                   </div>
                   
-                  <p className="text-gray-300 text-lg leading-relaxed">{aiSummary}</p>
+                  <div className="text-gray-300 text-lg leading-relaxed prose prose-invert max-w-none">
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        h1: ({children}) => <h1 className="text-2xl font-bold text-white mb-4">{children}</h1>,
+                        h2: ({children}) => <h2 className="text-xl font-bold text-white mb-3">{children}</h2>,
+                        h3: ({children}) => <h3 className="text-lg font-bold text-white mb-2">{children}</h3>,
+                        p: ({children}) => <p className="text-gray-300 mb-3 leading-relaxed">{children}</p>,
+                        strong: ({children}) => <strong className="text-white font-semibold">{children}</strong>,
+                        em: ({children}) => <em className="text-amber-400">{children}</em>,
+                        ul: ({children}) => <ul className="text-gray-300 mb-3 space-y-1">{children}</ul>,
+                        ol: ({children}) => <ol className="text-gray-300 mb-3 space-y-1">{children}</ol>,
+                        li: ({children}) => <li className="text-gray-300 ml-4">{children}</li>,
+                        code: ({children}) => <code className="bg-gray-800 text-amber-400 px-2 py-1 rounded text-sm">{children}</code>,
+                      }}
+                    >
+                      {aiSummary}
+                    </ReactMarkdown>
+                  </div>
                   
                   {/* Student Experience Preview */}
                   <div className="bg-amber-400/5 border border-amber-400/20 rounded-xl p-6">
@@ -324,7 +344,7 @@ export function InteractiveCTA() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleGenerate()}
-                className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-400 to-orange-400 text-black px-12 py-6 rounded-2xl text-xl font-medium hover:from-amber-300 hover:to-orange-300 transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="inline-flex items-center gap-3 bg-amber-400 text-black px-12 py-6 rounded-2xl text-xl font-medium hover:bg-amber-300 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 Create This Resource - Sign Up Free
                 <ArrowRight className="w-6 h-6" />
@@ -463,7 +483,7 @@ export function InteractiveCTA() {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-400 to-orange-400 text-black px-12 py-6 rounded-2xl text-xl font-medium hover:from-amber-300 hover:to-orange-300 transition-all duration-300 shadow-lg hover:shadow-xl"
+                      className="inline-flex items-center gap-3 bg-amber-400 text-black px-12 py-6 rounded-2xl text-xl font-medium hover:bg-amber-300 transition-all duration-300 shadow-lg hover:shadow-xl"
                     >
                       Get this resource - Sign up free
                       <ArrowRight className="w-6 h-6" />

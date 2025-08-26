@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
+import { db } from '@/lib/neon';
+import { userPrompts } from '@/lib/schema';
 
 export async function POST(request: NextRequest) {
   try {
+    // Optional authentication check for logging (but don't block demo users)
+    const { userId } = await auth().catch(() => ({ userId: null }));
+    
     const { prompt } = await request.json();
 
     if (!prompt || typeof prompt !== 'string') {
@@ -20,38 +26,38 @@ export async function POST(request: NextRequest) {
         'X-Title': 'AI Education Platform',
       },
       body: JSON.stringify({
-        model: 'google/gemma-2-9b-it', // Powerful, cost-effective model perfect for educational content
+        model: 'google/gemma-3-12b-it', // Larger Gemma model for better educational content
         messages: [
           {
             role: 'system',
-            content: `You are an AI educational technology assistant that helps teachers transform lesson ideas into interactive digital resources.
+            content: `You are an expert educational technology consultant who specializes in creating interactive digital learning experiences for UK schools.
 
-Your task is to read the teacher's lesson idea and describe exactly what kind of interactive educational resource AI would create from it.
+Your task: Generate an engaging, professional description of how AI would transform the teacher's lesson idea into a complete interactive educational resource.
 
-Always respond by:
-1. **Acknowledging the specific lesson topic** they mentioned
-2. **Describing the interactive resource type** (e.g., "Interactive Lab", "Virtual Timeline", "Quiz Game")
-3. **Listing 2-3 key features** pupils would experience
-4. **Explaining teacher benefits** (easy deployment, pupil safety, no coding)
+Response format: Use markdown formatting with:
+- **Bold text** for key features
+- *Italic text* for emphasis
+- Bullet points for lists
+- Clear, structured paragraphs
 
-Use UK educational terminology: pupils (not students), Year groups (not grades), analyse (not analyze).
+Focus on:
+1. **Specific interactive features** pupils would experience
+2. **Educational benefits** and learning outcomes
+3. **Teacher advantages** (time-saving, engagement, safety)
+4. **Technical capabilities** without overwhelming detail
 
-**Format with markdown** - use **bold** for resource types and key features, bullet points for lists.
+Use UK terminology (pupils not students, Year groups not grades, analyse not analyze, visualisation not visualization, colour not color).
 
-Keep responses under 100 words and stay focused on the educational value of their specific lesson idea.
-
-NEVER ask questions back - always provide a direct response about transforming their lesson into an interactive resource.`
+Keep response under 150 words. Be inspiring but realistic.`
           },
           {
             role: 'user',
-            content: `A teacher wants to create an interactive educational resource for this lesson: "${prompt}"
-
-Describe what kind of interactive digital resource AI would build from this lesson idea and what features pupils would experience.`
+            content: `Create an AI-powered interactive educational resource for: "${prompt}"`
           }
         ],
-        max_tokens: 200,
-        temperature: 0.3,
-        top_p: 0.8,
+        max_tokens: 300,
+        temperature: 0.7,
+        top_p: 0.9,
       }),
     });
 
@@ -64,7 +70,22 @@ Describe what kind of interactive digital resource AI would build from this less
     }
 
     const data = await response.json();
-    const generatedContent = data.choices?.[0]?.message?.content?.trim() || 'AI will transform your lesson idea into an interactive educational experience with multimedia content, student engagement features, and easy deployment. Perfect for busy teachers who want powerful resources without the complexity.';
+    const generatedContent = data.choices?.[0]?.message?.content?.trim() || '**AI Educational Resource Generator**\n\nYour lesson idea will be transformed into an *interactive digital experience* with:\n\n- **Multimedia content** tailored to your curriculum\n- **Student engagement features** for active learning\n- **Easy deployment** with no technical setup required\n\nPerfect for busy teachers who want powerful resources without the complexity.';
+
+    // Log the user prompt to database (only for authenticated users)
+    if (userId) {
+      try {
+        await db.insert(userPrompts).values({
+          prompt,
+          userId,
+          userAgent: request.headers.get('user-agent') || null,
+          ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || null,
+        });
+      } catch (dbError) {
+        console.error('Database logging error:', dbError);
+        // Continue even if logging fails
+      }
+    }
 
     return NextResponse.json({ content: generatedContent });
 

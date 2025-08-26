@@ -7,13 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:generate": "drizzle-kit generate:pg",
+    "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push:pg",
+    "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:introspect": "drizzle-kit introspect:pg"
+    "db:introspect": "drizzle-kit introspect"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.31.4",
     "@neondatabase/serverless": "^1.0.1",
     "@next/font": "^14.2.15",
     "@react-three/drei": "^10.7.4",
@@ -21,6 +22,7 @@
     "@types/three": "^0.179.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.1",
     "drizzle-kit": "^0.31.4",
     "drizzle-orm": "^0.44.5",
     "framer-motion": "^12.23.12",

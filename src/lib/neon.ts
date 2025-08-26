@@ -3,7 +3,7 @@ import { drizzle } from 'drizzle-orm/neon-http'
 import { sql } from 'drizzle-orm'
 
 // Initialize Neon client
-const neonClient = neon(process.env.NEON_DATABASE_URL!)
+const neonClient = neon(process.env.DATABASE_URL!)
 
 // Initialize Drizzle ORM with Neon
 export const db = drizzle(neonClient)
