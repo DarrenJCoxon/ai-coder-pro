@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { 
   Sparkles, 
   BookOpen, 
@@ -287,30 +285,7 @@ export function InteractiveCTA() {
                     <span className="font-medium">AI understands your concept!</span>
                   </div>
                   
-                  <div className="text-gray-300 text-lg leading-relaxed prose prose-invert prose-lg max-w-none">
-                    <ReactMarkdown 
-                      remarkPlugins={[remarkGfm]}
-                      components={{
-                        // Custom styling for markdown elements
-                        h1: ({...props}: any) => <h1 className="text-2xl font-bold text-white mb-4" {...props} />,
-                        h2: ({...props}: any) => <h2 className="text-xl font-semibold text-white mb-3" {...props} />,
-                        h3: ({...props}: any) => <h3 className="text-lg font-medium text-white mb-2" {...props} />,
-                        p: ({...props}: any) => <p className="text-gray-300 mb-3 leading-relaxed" {...props} />,
-                        strong: ({...props}: any) => <strong className="text-amber-400 font-semibold" {...props} />,
-                        em: ({...props}: any) => <em className="text-amber-200 italic" {...props} />,
-                        ul: ({...props}: any) => <ul className="list-disc list-inside mb-3 space-y-1" {...props} />,
-                        ol: ({...props}: any) => <ol className="list-decimal list-inside mb-3 space-y-1" {...props} />,
-                        li: ({...props}: any) => <li className="text-gray-300" {...props} />,
-                        code: ({inline, ...props}: any) => 
-                          inline 
-                            ? <code className="bg-gray-800 text-amber-400 px-1 py-0.5 rounded text-sm" {...props} />
-                            : <code className="block bg-gray-800 text-amber-400 p-3 rounded-lg text-sm overflow-x-auto" {...props} />,
-                        blockquote: ({...props}: any) => <blockquote className="border-l-4 border-amber-400 pl-4 italic text-amber-200 my-3" {...props} />
-                      }}
-                    >
-                      {aiSummary}
-                    </ReactMarkdown>
-                  </div>
+                  <p className="text-gray-300 text-lg leading-relaxed">{aiSummary}</p>
                   
                   {/* Student Experience Preview */}
                   <div className="bg-amber-400/5 border border-amber-400/20 rounded-xl p-6">
